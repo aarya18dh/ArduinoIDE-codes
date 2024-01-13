@@ -1,0 +1,162 @@
+# 4-wheel-mecanum-drive
+This Arduino code implements mecanum wheel drive control using a PS3 controller. The mecanum wheel drive system allows for omnidirectional movement, making it suitable for various robotic applications.
+
+//mecanum wheel drive
+#include<Ps3Controller.h>
+//The PS3 controller is connected via Bluetooth using the Ps3Controller library.
+int LFDir=1, LFpwm=5; //Left Front Motor
+int LBDir=2, LBpwm=6; //Left Back Motor
+int RFDir=3, RFpwm=7; //Right Front Motor
+int RBDir=4, RBpwm=8; //Right Back Motor
+float Lx,Rx,Ly,Ry;
+
+void setup() {
+  Serial.begin(115200);
+  Ps3.begin("00:00:00:00:00:0a");
+  //The PS3 controller is connected via Bluetooth using the Ps3Controller library. Make sure to replace the Bluetooth address ("00:00:00:00:00:0a") with the actual address of your PS3 controller.
+  Serial.println("Ready.");
+  pinMode(LFDir, OUTPUT);
+  pinMode(LBDir, OUTPUT);
+  pinMode(RFDir, OUTPUT);
+  pinMode(RBDir, OUTPUT);
+} //Initializes serial communication and sets up pin modes for motor control
+
+void controls(){
+  Lx=Ps3.data.analog.stick.lx;
+  Ly=Ps3.data.analog.stick.ly; 
+  Ry=Ps3.data.analog.stick.ry;
+  Rx=Ps3.data.analog.stick.rx;
+} //Reads analog stick values from the PS3 controller and stores them in global variables.
+
+//Adjust motor speed (150 in this case) based on your robot's specifications.
+
+void forward() {
+  analogWrite(LFpwm, 150);
+  analogWrite(LBpwm, 150);
+  analogWrite(RFpwm, 150);
+  analogWrite(RBpwm, 150);
+  digitalWrite(LFDir, HIGH);
+  digitalWrite(LBDir, HIGH);
+  digitalWrite(RFDir, HIGH);
+  digitalWrite(RBDir, HIGH);
+} // Moves the robot forward.
+
+void backward(){
+  analogWrite(LFpwm, 150);
+  analogWrite(LBpwm, 150);
+  analogWrite(RFpwm, 150);
+  analogWrite(RBpwm, 150);
+  digitalWrite(LFDir, LOW);
+  digitalWrite(LBDir, LOW);
+  digitalWrite(RFDir, LOW);
+  digitalWrite(RBDir, LOW);
+} // Moves the robot backward.
+
+void stop() {
+  analogWrite(LFpwm, 0);
+  analogWrite(LBpwm, 0);
+  analogWrite(RFpwm, 0);
+  analogWrite(RBpwm, 0);
+} // stops all motors.
+
+void clockwise() {
+  analogWrite(LFpwm, 150);
+  analogWrite(LBpwm, 150);
+  analogWrite(RFpwm, 150);
+  analogWrite(RBpwm, 150);
+  digitalWrite(LFDir, HIGH);
+  digitalWrite(LBDir, HIGH);
+  digitalWrite(RFDir, LOW);
+  digitalWrite(RBDir, LOW);
+} // Rotates the robot clockwise.
+
+void anticlockwise(){
+  analogWrite(LFpwm, 150);
+  analogWrite(LBpwm, 150);
+  analogWrite(RFpwm, 150);
+  analogWrite(RBpwm, 150);
+  digitalWrite(LFDir, LOW);
+  digitalWrite(LBDir, LOW);
+  digitalWrite(RFDir, HIGH);
+  digitalWrite(RBDir, HIGH);
+} //: Rotates the robot anticlockwise.(counterclockwise)
+
+void right() {
+  analogWrite(LFpwm, 150);
+  analogWrite(LBpwm, 150);
+  analogWrite(RFpwm, 150);
+  analogWrite(RBpwm, 150);
+  digitalWrite(LFDir, HIGH);
+  digitalWrite(LBDir, LOW);
+  digitalWrite(RFDir, LOW);
+  digitalWrite(RBDir, HIGH);
+} //Moves the robot to the right
+
+void left() {
+  analogWrite(LFpwm, speed);
+  analogWrite(LBpwm, speed);
+  analogWrite(RFpwm, speed);
+  analogWrite(RBpwm, speed);
+  digitalWrite(LFDir, LOW);
+  digitalWrite(LBDir, HIGH);
+  digitalWrite(RFDir, HIGH);
+  digitalWrite(RBDir, LOW);
+} // Moves the robot to the left
+
+void loop() {
+  controls();
+  //Setting movement thresholds helps to filter out small variations in the joystick input, reducing unintended and jittery movements. In the code, the thresholds are used to ensure that the robot responds to substantial joystick movements, while ignoring small fluctuations around the joystick's central position
+  
+  while(Ly<-30)
+  {
+    forward();
+    Serial.println(Ly);
+    controls();
+    }
+  while(Ly>30)
+  {
+    backward();
+    Serial.println(Ly);
+    controls();
+    }
+//These conditions check if the left joystick's vertical movement (Ly) is significant enough (beyond the threshold of 30). If the condition is true, the robot moves forward or backward.
+
+  while(Lx<-30)
+  {
+    left();
+    Serial.println(Lx);
+    controls();
+    }
+  while(Lx>30)
+  {
+    right();
+    Serial.println(Lx);
+    Controls();
+    }
+    //Similar to the vertical movement, these conditions check if the left joystick's horizontal movement (Lx) is significant enough. If true, the robot moves left or right
+    
+  // while(Lx==-1.00 && Ly==-1.00)
+  // {
+  //   stop();
+  //   Serial.println(Lx,Ly);
+  //   controls();
+  // }
+  
+  while(Rx<-30)
+  {
+    anticlockwise();
+    Serial.println(Rx);
+    controls();
+    }
+    
+  while(Rx>30)
+  {
+    clockwise();
+    Serial.println(Rx);
+    controls();
+}
+// These conditions check if the right joystick's horizontal movement (Rx) is significant enough. If true, the robot rotates clockwise or anticlockwise.
+
+  stop();
+
+}
