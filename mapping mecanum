@@ -1,0 +1,169 @@
+# 4-wheel-drive-using-mapping
+This Arduino code implements a mecanum wheel drive system controlled by a PS3 controller. The mecanum wheel setup consists of four motors, each with its own direction and speed control pins. The PS3 controller provides input through its analog sticks, influencing the robot's movement in various directions
+
+#include <Ps3Controller.h> //The PS3 controller is connected via Bluetooth using the Ps3Controller library.
+int LFDir = 32, LFSpeed = 33; //Left Front Motor
+int RFDir = 26, RFSpeed = 27; //Right Front Motor
+int LBDir = 18, LBSpeed = 19; //Left Back Motor
+int RBDir = 16 , RBSpeed = 17; //Right Back Motor
+float Lx, Rx, Ly, Ry;
+
+// forward high
+// backward low
+
+void setup() {
+  Serial.begin(115200);
+  Ps3.begin("00:00:00:00:00:0a");
+  //Ensure that you replace the Bluetooth address ("00:00:00:00:00:0a") with the actual address of your PS3 controller.
+
+  pinMode(LFDir, OUTPUT);
+  pinMode(RFDir, OUTPUT);
+  pinMode(LBDir, OUTPUT);
+  pinMode(RBDir, OUTPUT);
+  delay(100);
+  }
+//Adjust motor speed (pwm) based on your robot's specifications. Fine-tune movement thresholds according to your preferences
+
+void front(){
+  analogWrite(LFSpeed, pwm);
+  analogWrite(RFSpeed, pwm);
+  analogWrite(LBSpeed, pwm);
+  analogWrite(RBSpeed, pwm);
+  digitalWrite(RFDir, HIGH);
+  digitalWrite(RBDir, HIGH);
+  digitalWrite(LBDir, HIGH);
+  digitalWrite(LFDir, HIGH);
+} //moves the robot in forward direction
+
+void back(){
+  analogWrite(LFSpeed, pwm);
+  analogWrite(RFSpeed, pwm);
+  analogWrite(LBSpeed, pwm);
+  analogWrite(RBSpeed, pwm);
+  digitalWrite(RFDir, LOW);
+  digitalWrite(RBDir, LOW);
+  digitalWrite(LBDir, LOW);
+  digitalWrite(LFDir, LOW); 
+} //moves the robot in backward direction
+
+void stop(){
+  analogWrite(LFSpeed, 0);
+  analogWrite(RFSpeed, 0);
+  analogWrite(LBSpeed, 0);
+  analogWrite(RBSpeed, 0);
+} //stops the motors
+
+void clockwise(){
+  analogWrite(LFSpeed, pwm);
+  analogWrite(RFSpeed, pwm);
+  analogWrite(LBSpeed, pwm);
+  analogWrite(RBSpeed, pwm);
+  digitalWrite(RFDir, LOW);
+  digitalWrite(RBDir, LOW);
+  digitalWrite(LBDir, HIGH);
+  digitalWrite(LFDir, HIGH);
+} //rotates the robot in clockwise direction 
+
+void anticlockwise(){
+  analogWrite(LFSpeed, pwm);
+  analogWrite(RFSpeed, pwm);
+  analogWrite(LBSpeed, pwm);
+  analogWrite(RBSpeed, pwm);
+  digitalWrite(RFDir, HIGH);
+  digitalWrite(RBDir, HIGH);
+  digitalWrite(LBDir, LOW);
+  digitalWrite(LFDir, LOW);
+} //rotates the robot in anticlockwise direction
+
+void right(){
+  analogWrite(LFSpeed, pwm);
+  analogWrite(RFSpeed, pwm);
+  analogWrite(LBSpeed, pwm);
+  analogWrite(RBSpeed, pwm);
+  digitalWrite(RFDir, LOW);
+  digitalWrite(RBDir, HIGH);
+  digitalWrite(LBDir, LOW);
+  digitalWrite(LFDir, HIGH);
+}//moves the robot in the right direction
+
+void left(){
+  analogWrite(LFSpeed, pwm);
+  analogWrite(RFSpeed, pwm);
+  analogWrite(LBSpeed, pwm);
+  analogWrite(RBSpeed, pwm);
+  digitalWrite(RFDir, HIGH);
+  digitalWrite(RBDir, LOW);
+  digitalWrite(LBDir, HIGH);
+  digitalWrite(LFDir, LOW);
+}//moves the robot in left direction
+
+void controls()
+{
+ Lx=Ps3.data.analog.stick.lx;
+ Ly=Ps3.data.analog.stick.ly;
+ Rx=Ps3.data.analog.stick.rx;
+ Ry=Ps3.data.analog.stick.ry;  
+} //Reads analog stick values from the PS3 controller and stores them in global variables
+
+void map()
+{
+  i=Ry;
+  pwm= map(i,-1,-128,0,255);
+} //Maps the Ry (right joystick vertical) value to a PWM range for controlling motor speed.
+
+
+void loop() {
+//Continuously reads PS3 controller inputs and performs corresponding robot movements based on analog stick values. Movement thresholds are set to 30 (Ly, Lx, Rx) for better control.
+controls();
+
+if(Ly <-30){
+while(Ly <-30){
+  front();
+  Serial.println(Ly);
+  controls();
+  }
+}
+else if(Ly > 30){
+while(Ly > 30)
+{
+  back();
+  Serial.println(Ly);
+  controls();
+  }
+}
+else if(Lx > 30){
+while(Lx > 30)
+{
+  right();
+  Serial.println(Lx);
+  controls();
+  }
+}
+else if(Lx < -30){
+while(Lx < -30)
+{
+  left();
+  Serial.println(Lx);
+  controls();
+  }
+}
+else if(Rx > 30){
+while(Rx > 30)
+{
+ clockwise();
+ Serial.println(Rx);
+ controls();
+ }
+}
+else if(Rx < -30){
+while(Rx < -30){
+  anticlockwise();
+  Serial.println(Rx);
+  controls();  
+  }  
+}
+else{
+  stop();
+  Serial.println(Ly,Lx);
+  }
+}
