@@ -1,0 +1,34 @@
+# Cytron-Motor-Driver-Control
+This Arduino code utilizes the CytronMotorDriver library to control two motors using a Cytron Motor Driver. The motors are controlled to perform a sequence of movements, including forward motion, stopping, turning, and reversing
+//This code uses the CytronMotorDriver library. Make sure to include it in your Arduino IDE.
+#include <CytronMotorDriver.h>
+CytronMD motor1(PWM_PWM, 3, 9);   // PWM 1A = Pin 3, PWM 1B = Pin 9.
+CytronMD motor2(PWM_PWM, 10, 11);
+void setup() {
+
+}
+//Modify delays according to your motor specifications and movement requirements.
+//Adjust the PWM pins in the CytronMD declarations based on your specific hardware setup.
+//the following loops illustrates that the robot will move forward then stop for 2secs and then it turns anticlockwise
+
+void loop() {
+  motor1.setSpeed(120);   // Motor 1 runs forward
+  motor2.setSpeed(130);  // Motor 2 runs forward
+  delay(4000);
+
+  motor1.setSpeed(0);     //stop
+  motor2.setSpeed(0);
+  delay(2000); 
+
+  motor2.setSpeed(255); //turn
+  delay(2000);
+
+   motor2.setSpeed(63); 
+  delay(4500);
+
+ //below is the sequence of instructions which will move the robot in backward direction
+  motor1.setSpeed(-70);   // Motor 1 runs backward.
+  motor2.setSpeed(-180);  // Motor 2 runs backward.
+  delay(3000); //turn 
+
+}
