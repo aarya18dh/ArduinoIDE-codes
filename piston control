@@ -1,0 +1,27 @@
+# piston-control
+//This Arduino code enables the control of a digital output through serial communication. It listens for incoming serial data and toggles the state of the digital output based on the received character ('1' for HIGH and '0' for LOW). This can be useful for remotely controlling a device or triggering actions through a simple serial interface
+//This code can be used in simple piston control mechanisms using relays.
+char value;
+void setup() {
+Serial.begin(9600); //Initializes serial communication with a baud rate of 9600.
+pinMode(9,OUTPUT); //Adjust the output pin based on your robot's specifications.
+}
+
+void loop()
+{
+  if(Serial.available()>0){
+  value=Serial.read();
+  //Checks for incoming serial data.
+  if(value=='1'){
+    Serial.println("value=1");
+    digitalWrite(9,HIGH);
+    delay(1000);
+  } //If the received value is '1', sets Pin 9 HIGH, prints a corresponding message, and delays for 1 second
+
+  else if(value=='0'){
+    Serial.println("value=0");
+    digitalWrite(9,LOW);
+    delay(1000);
+  } //If the received value is '0', sets Pin 9 LOW, prints a corresponding message, and delays for 1 second.
+}
+}
