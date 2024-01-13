@@ -1,0 +1,68 @@
+# Ultrasonic Distance Sensor with LED and Buzzer Indication
+//This Arduino code utilizes an ultrasonic distance sensor to measure the distance to an object. The measured distance is displayed on the Serial Monitor, and based on the proximity of the object, different colored LEDs light up. Additionally, a buzzer generates a sound when the object is very close.
+
+int trigPin = 2, echoPin = 3;
+int greenLedPin = 4, yellowLedPin = 5, redLedPin = 6;
+int buzzerPin = 7;
+//Adjust the pin numbers in the code to match your actual hardware setup.
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(greenLedPin, OUTPUT);
+  pinMode(yellowLedPin, OUTPUT);
+  pinMode(redLedPin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+}
+
+long measureDistance() {
+  digitalWrite(trigPin, LOW);
+  delay(2000);
+  digitalWrite(trigPin, HIGH);
+  delay(1000);
+  digitalWrite(trigPin, LOW);
+
+  long duration = pulseIn(echoPin, HIGH);
+  long distance = duration * 0.034 / 2; // Speed of sound is 343 meters per second
+
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  return distance;
+}
+
+void control(long distance) {
+  if (distance > 30) {
+    digitalWrite(greenLedPin, HIGH);
+    digitalWrite(yellowLedPin, LOW);
+    digitalWrite(redLedPin, LOW);
+    noTone(buzzerPin);
+  } 
+  else if (distance > 10) {
+    digitalWrite(greenLedPin, LOW);
+    digitalWrite(yellowLedPin, HIGH);
+    digitalWrite(redLedPin, LOW);
+    noTone(buzzerPin);
+  } 
+  else if (distance > 5) {
+    digitalWrite(greenLedPin, LOW);
+    digitalWrite(yellowLedPin, LOW);
+    digitalWrite(redLedPin, HIGH);
+    noTone(buzzerPin);
+  } 
+  else {
+    digitalWrite(greenLedPin, LOW);
+    digitalWrite(yellowLedPin, LOW);
+    digitalWrite(redLedPin, HIGH);
+    tone(buzzerPin, 1000); // Adjust the frequency as needed for your application
+  }
+}
+
+
+void loop() {
+  long distance = measureDistance();
+  control(distance);
+  delay(500); // Adjust the delay as needed for your application
+}
